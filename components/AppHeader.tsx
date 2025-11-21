@@ -16,9 +16,9 @@ function AppHeader() {
       </div>
       <div>
         <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-          Travel Assistant
+          Chatbot
         </h1>
-        <p className="text-xs text-zinc-400">AI Travel Chatbot / 旅行アシスタント AI</p>
+        <p className="text-xs text-zinc-400">AI Chatbot / 旅行アシスタント </p>
       </div>
     </motion.div>
   );

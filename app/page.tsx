@@ -246,15 +246,15 @@ export default function Home() {
             {weather && <WeatherCard key={weather.location} weather={weather} />}
 
             <Card className="p-6 bg-zinc-900/50 border-zinc-800 backdrop-blur-sm">
-              <h3 className="font-semibold mb-3 flex items-center gap-2 text-white">
+              <h3 className="font-semibold flex items-center gap-2 text-white">
                 <Sparkles className="h-5 w-5 text-purple-500" />
                 How to Use / 使い方
               </h3>
               <ul className="text-sm space-y-2 text-zinc-400">
-                <li>🎤 Speak in Japanese/English via Voice Input</li>
-                <li>⌨️ Type text to chat</li>
-                <li>🌤️ Get weather & travel tips</li>
-                <li>✈️ Plan your trip with AI</li>
+                <li> ⏹️Speak in Japanese/English via Voice Input</li>
+                <li> ⏹️Type text to chat</li>
+                <li> ⏹️Get weather & travel tips</li>
+                <li> ⏹️Plan your trip with AI</li>
               </ul>
             </Card>
           </div>
