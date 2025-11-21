@@ -20,7 +20,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const toggleLanguage = useCallback(() => {
     setLanguage((prev) => {
       const newLang = prev === 'en' ? 'ja' : 'en';
-      // Notify all listeners
+      
       listenersRef.current.forEach(callback => callback(newLang));
       return newLang;
     });

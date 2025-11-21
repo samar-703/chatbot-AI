@@ -15,10 +15,9 @@ export default function VoiceInput({ onTranscript, disabled }: VoiceInputProps) 
   const [isSupported, setIsSupported] = useState(true);
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
-  const accumulatedTranscriptRef = useRef<string>(''); // Store accumulated transcript
+  const accumulatedTranscriptRef = useRef<string>(''); 
 
   useEffect(() => {
-    // Check if browser supports Web Speech API
     if (typeof window !== 'undefined') {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       
@@ -27,27 +26,24 @@ export default function VoiceInput({ onTranscript, disabled }: VoiceInputProps) 
         return;
       }
 
-      // ============================================
-      // JAPANESE VOICE RECOGNITION SETUP
-      // ============================================
-      // Initialize Speech Recognition with Japanese language
+    
       const recognition = new SpeechRecognition();
       recognition.lang = 'ja-JP'; 
-      recognition.continuous = true; // Allow continuous listening without auto-stop
-      recognition.interimResults = true; // Show real-time transcription
+      recognition.continuous = true; 
+      recognition.interimResults = true; 
       recognition.maxAlternatives = 1;
 
       recognition.onstart = () => {
         setIsListening(true);
         setTranscript('');
-        accumulatedTranscriptRef.current = ''; // Reset accumulated transcript
+        accumulatedTranscriptRef.current = ''; 
       };
 
       recognition.onresult = (event: any) => {
         let interimTranscript = '';
         let finalTranscript = '';
 
-        // Accumulate all final results
+        
         for (let i = 0; i < event.results.length; i++) {
           const transcriptPart = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
@@ -57,10 +53,9 @@ export default function VoiceInput({ onTranscript, disabled }: VoiceInputProps) 
           }
         }
       
-        // Store the accumulated final transcript
         accumulatedTranscriptRef.current = finalTranscript;
         
-        // Show the accumulated transcript in real-time (final + interim)
+        
         const displayTranscript = finalTranscript + interimTranscript;
         setTranscript(displayTranscript);
       };
@@ -76,12 +71,12 @@ export default function VoiceInput({ onTranscript, disabled }: VoiceInputProps) 
 
       recognition.onend = () => {
         setIsListening(false);
-        // Send the final accumulated transcript when recording stops
+      
         if (accumulatedTranscriptRef.current) {
           onTranscript(accumulatedTranscriptRef.current);
-          accumulatedTranscriptRef.current = ''; // Clear after sending
+          accumulatedTranscriptRef.current = ''; 
         }
-        // Clear the transcript display so "Recognizing:" disappears
+       
         setTranscript('');
       };
 

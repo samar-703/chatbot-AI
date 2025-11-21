@@ -23,7 +23,7 @@ export default function Home() {
   const [textInput, setTextInput] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
 
-  // Translate a single message
+  
   const translateMessage = async (message: Message, targetLang: string): Promise<Message> => {
     try {
       const response = await fetch('/api/translate', {
@@ -52,7 +52,7 @@ export default function Home() {
     }
   };
 
-  // Handle language change - translate all messages
+  
   useEffect(() => {
     const unsubscribe = onLanguageChange(async (newLang) => {
       if (messages.length === 0) return;
@@ -204,12 +204,12 @@ export default function Home() {
     }
   };
 
-  // Handle voice transcript
+
   const handleVoiceTranscript = (transcript: string) => {
     sendMessage(transcript);
   };
 
-  // Handle text input submit
+  
   const handleTextSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     sendMessage(textInput);

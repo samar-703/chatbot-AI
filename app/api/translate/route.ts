@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { text, targetLanguage } = body;
 
-    // Validate input
+   
     if (!text || !targetLanguage) {
       return NextResponse.json(
         { error: 'Text and target language are required' },
@@ -16,12 +16,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if API key is configured
+    
     if (!GEMINI_API_KEY) {
       return NextResponse.json(
         { 
           error: 'Gemini API key not configured',
-          translatedText: text // Return original text if no API key
+          translatedText: text 
         },
         { status: 200 }
       );
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const languageName = targetLanguage === 'ja' ? 'Japanese' : 'English';
     const prompt = `Translate the following text to ${languageName}. Only provide the translation, no explanations or additional text:\n\n${text}`;
 
-    // Make request to Gemini API
+    
     const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
