@@ -4,6 +4,8 @@ export interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  originalContent?: string; // Store original language content
+  translatedContent?: string; // Store translated content
   timestamp: Date;
   weatherData?: WeatherData;
 }

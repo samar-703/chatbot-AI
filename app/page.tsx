@@ -14,13 +14,64 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '@/lib/language-context';
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, language, onLanguageChange } = useLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [isLoadingChat, setIsLoadingChat] = useState(false);
   const [isLoadingWeather, setIsLoadingWeather] = useState(false);
   const [cityInput, setCityInput] = useState('');
   const [textInput, setTextInput] = useState('');
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  // Translate a single message
+  const translateMessage = async (message: Message, targetLang: string): Promise<Message> => {
+    try {
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          text: message.originalContent || message.content, 
+          targetLanguage: targetLang 
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.translatedText) {
+        return {
+          ...message,
+          content: data.translatedText,
+          originalContent: message.originalContent || message.content,
+          translatedContent: data.translatedText,
+        };
+      }
+      return message;
+    } catch (error) {
+      console.error('Translation error:', error);
+      return message;
+    }
+  };
+
+  // Handle language change - translate all messages
+  useEffect(() => {
+    const unsubscribe = onLanguageChange(async (newLang) => {
+      if (messages.length === 0) return;
+      
+      setIsTranslating(true);
+      try {
+        const translatedMessages = await Promise.all(
+          messages.map(msg => translateMessage(msg, newLang))
+        );
+        setMessages(translatedMessages);
+      } catch (error) {
+        console.error('Failed to translate messages:', error);
+      } finally {
+        setIsTranslating(false);
+      }
+    });
+
+    return unsubscribe;
+  }, [messages, onLanguageChange]);
 
   // Fetch weather data
   const fetchWeather = async (query: string | { lat: number; lon: number }) => {
@@ -208,7 +259,7 @@ export default function Home() {
           {/* Chat Area */}
           <Card className="lg:col-span-2 flex flex-col overflow-hidden shadow-2xl border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
             <div className="flex-1 overflow-hidden">
-              <ChatInterface messages={messages} isLoading={isLoadingChat} />
+              <ChatInterface messages={messages} isLoading={isLoadingChat || isTranslating} />
             </div>
 
             {/* Input Area */}
