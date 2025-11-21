@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode, useRef, useCallback } from 'react';
 import { Language, translations, Translations } from './translations';
 
 interface LanguageContextType {
@@ -15,27 +15,23 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>('en');
-  const [listeners, setListeners] = useState<Set<(lang: Language) => void>>(new Set());
+  const listenersRef = useRef<Set<(lang: Language) => void>>(new Set());
 
-  const toggleLanguage = () => {
+  const toggleLanguage = useCallback(() => {
     setLanguage((prev) => {
       const newLang = prev === 'en' ? 'ja' : 'en';
       // Notify all listeners
-      listeners.forEach(callback => callback(newLang));
+      listenersRef.current.forEach(callback => callback(newLang));
       return newLang;
     });
-  };
+  }, []);
 
-  const onLanguageChange = (callback: (lang: Language) => void) => {
-    setListeners(prev => new Set(prev).add(callback));
+  const onLanguageChange = useCallback((callback: (lang: Language) => void) => {
+    listenersRef.current.add(callback);
     return () => {
-      setListeners(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(callback);
-        return newSet;
-      });
+      listenersRef.current.delete(callback);
     };
-  };
+  }, []);
 
   const value = {
     language,
