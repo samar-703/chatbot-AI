@@ -81,6 +81,8 @@ export default function VoiceInput({ onTranscript, disabled }: VoiceInputProps) 
           onTranscript(accumulatedTranscriptRef.current);
           accumulatedTranscriptRef.current = ''; // Clear after sending
         }
+        // Clear the transcript display so "Recognizing:" disappears
+        setTranscript('');
       };
 
       recognitionRef.current = recognition;
