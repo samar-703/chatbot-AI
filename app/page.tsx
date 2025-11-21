@@ -11,8 +11,10 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Send, Sparkles, Mic, MicOff, MapPin, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/lib/language-context';
 
 export default function Home() {
+  const { t } = useLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [isLoadingChat, setIsLoadingChat] = useState(false);
@@ -43,7 +45,7 @@ export default function Home() {
             setCityInput(data.data.location);
           }
         } else {
-          alert('Failed to fetch weather data. Please try again.');
+          alert(t.errors.weatherFailed);
         }
       } else {
         setWeather(data);
@@ -61,7 +63,7 @@ export default function Home() {
 
   const handleLocationClick = () => {
     if (!('geolocation' in navigator)) {
-      alert('Geolocation is not supported by your browser');
+      alert(t.errors.geolocationNotSupported);
       return;
     }
 
@@ -82,11 +84,11 @@ export default function Home() {
         setIsLoadingWeather(false);
         let errorMessage = 'Failed to get location.';
         if (error.code === 1) {
-          errorMessage = 'Location permission denied. Please enable location access in your browser settings.';
+          errorMessage = t.errors.locationDenied;
         } else if (error.code === 2) {
-          errorMessage = 'Location unavailable. Please try again.';
+          errorMessage = t.errors.locationUnavailable;
         } else if (error.code === 3) {
-          errorMessage = 'Location request timed out. Please check your connection and try again.';
+          errorMessage = t.errors.locationTimeout;
         }
         alert(errorMessage);
       },
@@ -141,7 +143,7 @@ export default function Home() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: t.chat.errorMessage,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -167,38 +169,36 @@ export default function Home() {
       {/* Header */}
       <header className="border-b border-white/10 bg-black/80 backdrop-blur-lg sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <AppHeader />
+          <AppHeader />
 
-            {/* Weather Search */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex gap-2"
+          {/* Weather Search */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex gap-2 mt-4"
+          >
+            <Input
+              placeholder={t.weather.placeholder}
+              value={cityInput}
+              onChange={(e) => setCityInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && fetchWeather(cityInput)}
+              className="w-64 bg-zinc-900/50 border-zinc-800 focus:border-purple-500 text-white placeholder:text-zinc-500"
+            />
+
+            <Button
+              type="button"
+              onClick={handleLocationClick}
+              disabled={isLoadingWeather}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-purple-500/20"
+              size="icon"
             >
-              <Input
-                placeholder="City Name / 都市名 (e.g., Tokyo)"
-                value={cityInput}
-                onChange={(e) => setCityInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && fetchWeather(cityInput)}
-                className="w-64 bg-zinc-900/50 border-zinc-800 focus:border-purple-500 text-white placeholder:text-zinc-500"
-              />
-
-              <Button
-                type="button"
-                onClick={handleLocationClick}
-                disabled={isLoadingWeather}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-purple-500/20"
-                size="icon"
-              >
-                {isLoadingWeather ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <MapPin className="h-5 w-5" />
-                )}
-              </Button>
-            </motion.div>
-          </div>
+              {isLoadingWeather ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <MapPin className="h-5 w-5" />
+              )}
+            </Button>
+          </motion.div>
         </div>
       </header>
 
@@ -215,7 +215,7 @@ export default function Home() {
             <div className="border-t border-zinc-800 p-4 bg-black/20">
               <form onSubmit={handleTextSubmit} className="flex gap-2 items-center">
                 <Input
-                  placeholder="Type your message here... / メッセージを入力..."
+                  placeholder={t.chat.inputPlaceholder}
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
                   disabled={isLoadingChat}
@@ -246,15 +246,14 @@ export default function Home() {
             {weather && <WeatherCard key={weather.location} weather={weather} />}
 
             <Card className="p-6 bg-zinc-900/50 border-zinc-800 backdrop-blur-sm">
-              <h3 className="font-semibold flex items-center gap-2 text-white">
+              <h3 className="font-semibold flex items-center gap-2 text-white mb-3">
                 <Sparkles className="h-5 w-5 text-purple-500" />
-                How to Use / 使い方
+                {t.howToUse.title}
               </h3>
               <ul className="text-sm space-y-2 text-zinc-400">
-                <li> ⏹️Speak in Japanese/English via Voice Input</li>
-                <li> ⏹️Type text to chat</li>
-                <li> ⏹️Get weather & travel tips</li>
-                <li> ⏹️Plan your trip with AI</li>
+                {t.howToUse.items.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
               </ul>
             </Card>
           </div>

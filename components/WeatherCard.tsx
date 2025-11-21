@@ -4,12 +4,14 @@ import { WeatherData } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Cloud, Droplets, Wind, Thermometer } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/lib/language-context';
 
 interface WeatherCardProps {
   weather: WeatherData;
 }
 
 export default function WeatherCard({ weather }: WeatherCardProps) {
+  const { t } = useLanguage();
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -34,19 +36,19 @@ export default function WeatherCard({ weather }: WeatherCardProps) {
           <div className="grid grid-cols-3 gap-4">
             <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-black/40 border border-zinc-800">
               <Thermometer className="h-5 w-5 text-orange-400" />
-              <span className="text-xs text-zinc-400">体感</span>
+              <span className="text-xs text-zinc-400">{t.weather.feelsLike}</span>
               <span className="text-sm font-semibold text-white">{weather.feelsLike}°C</span>
             </div>
 
             <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-black/40 border border-zinc-800">
               <Droplets className="h-5 w-5 text-blue-400" />
-              <span className="text-xs text-zinc-400">湿度</span>
+              <span className="text-xs text-zinc-400">{t.weather.humidity}</span>
               <span className="text-sm font-semibold text-white">{weather.humidity}%</span>
             </div>
 
             <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-black/40 border border-zinc-800">
               <Wind className="h-5 w-5 text-cyan-400" />
-              <span className="text-xs text-zinc-400">風速</span>
+              <span className="text-xs text-zinc-400">{t.weather.wind}</span>
               <span className="text-sm font-semibold text-white">{weather.windSpeed.toFixed(1)} m/s</span>
             </div>
           </div>
