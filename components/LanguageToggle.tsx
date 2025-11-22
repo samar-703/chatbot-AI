@@ -19,7 +19,7 @@ function LanguageToggle() {
         onClick={toggleLanguage}
         variant="outline"
         size="sm"
-        className="bg-zinc-900/50 border-zinc-700 hover:border-purple-500 hover:bg-zinc-700/80 hover:text-white text-white transition-all duration-300 shadow-lg opacity-100"
+        className="bg-zinc-900/50 border-zinc-500 hover:border-purple-600 hover:bg-zinc-700/80 hover:text-white transition-all duration-300 shadow-lg opacity-100"
       >
         <Languages className="h-4 w-4 mr-2" />
         <span className="font-medium">{language === 'en' ? '日本語' : 'English'}</span>
