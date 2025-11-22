@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const body: ChatRequest = await request.json();
     const { message, weatherData, conversationHistory, language } = body;
 
-    // Validate input
+    
     if (!message || message.trim() === '') {
       return NextResponse.json(
         { error: 'Message is required' },
@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if API key is configured
     if (!GOOGLE_API_KEY) {
       return NextResponse.json(
         { 
@@ -31,10 +30,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    
     const systemPrompt = buildTravelPrompt(weatherData, language);
 
-   
     const { text } = await generateText({
       model: google('gemini-2.0-flash-exp'),
       system: systemPrompt,

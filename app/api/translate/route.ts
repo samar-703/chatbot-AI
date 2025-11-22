@@ -5,9 +5,12 @@ import { google } from '@ai-sdk/google';
 const GOOGLE_API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY || '';
 
 export async function POST(request: NextRequest) {
+  let originalText = '';
+  
   try {
     const body = await request.json();
     const { text, targetLanguage } = body;
+    originalText = text; // Store for error fallback
 
    
     if (!text || !targetLanguage) {
@@ -40,13 +43,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ translatedText: translatedText.trim() });
   } catch (error) {
     console.error('Translation API Error:', error);
+    // Return original text as fallback instead of failing completely
     return NextResponse.json(
       { 
         error: 'Failed to translate',
         details: error instanceof Error ? error.message : 'Unknown error',
-        translatedText: '' // Return empty on error
+        translatedText: originalText // Return original text as fallback
       },
-      { status: 500 }
+      { status: 200 } // Return 200 to prevent frontend errors
     );
   }
 }
