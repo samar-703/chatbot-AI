@@ -12,6 +12,8 @@ import { Card } from '@/components/ui/card';
 import { Send, Sparkles, Mic, MicOff, MapPin, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/lib/language-context';
+import PremiumLoader from '@/components/PremiumLoader';
+import BackgroundEffect from '@/components/BackgroundEffect';
 
 export default function Home() {
   const { t, language, onLanguageChange } = useLanguage();
@@ -231,10 +233,14 @@ export default function Home() {
     sendMessage(textInput);
   };
 
+
+
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-sky-500/30">
+    <div className="min-h-screen bg-transparent text-white selection:bg-sky-500/30 relative">
+      <BackgroundEffect isActive={isLoadingChat} />
+      
       {/* Header */}
-      <header className="border-b border-white/10 bg-black/80 backdrop-blur-lg sticky top-0 z-50">
+      <header className="border-b border-white/5 bg-black/20 backdrop-blur-xl sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <AppHeader />
           
@@ -262,28 +268,28 @@ export default function Home() {
       <main className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-180px)]">
           {/* Chat Area */}
-          <Card className="lg:col-span-2 flex flex-col overflow-hidden shadow-2xl border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
+          <Card className="lg:col-span-2 flex flex-col overflow-hidden shadow-2xl border-white/10 bg-black/40 backdrop-blur-md">
             <div className="flex-1 overflow-hidden">
               <ChatInterface messages={messages} isLoading={isLoadingChat || isTranslating} />
             </div>
 
             {/* Input Area */}
-            <div className="border-t border-zinc-800 p-4 bg-black/20">
+            <div className="border-t border-white/10 p-4 bg-black/20">
               <form onSubmit={handleTextSubmit} className="flex gap-2 items-center">
                 <Input
                   placeholder={t.chat.inputPlaceholder}
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
                   disabled={isLoadingChat}
-                  className="flex-1 bg-zinc-900/50 border-zinc-800 focus:border-sky-500 text-white placeholder:text-zinc-500"
+                  className="flex-1 bg-white/5 border-white/10 focus:border-sky-500 text-white placeholder:text-zinc-500"
                 />
                 <Button 
                   type="submit" 
                   disabled={isLoadingChat || !textInput.trim()}
-                  className="bg-sky-500 hover:bg-sky-600 border-0 text-white shadow-lg shadow-sky-500/20 transition-all duration-300 px-6"
+                  className="bg-sky-500 hover:bg-sky-600 border-0 text-white shadow-lg shadow-sky-500/20 transition-all duration-300 px-6 min-w-[60px]"
                 >
                   {isLoadingChat ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <PremiumLoader />
                   ) : (
                     <Send className="h-4 w-4" />
                   )}
@@ -300,24 +306,24 @@ export default function Home() {
           {/* Sidebar */}
           <div className="flex flex-col gap-6">
             {/* Weather Search Input */}
-            <Card className="p-4 bg-zinc-900/50 border-zinc-800 backdrop-blur-sm">
+            <Card className="p-4 bg-black/40 border-white/10 backdrop-blur-md">
               <div className="flex gap-2">
                 <Input
                   placeholder={t.weather.placeholder}
                   value={cityInput}
                   onChange={(e) => setCityInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && fetchWeather(cityInput)}
-                  className="bg-black/40 border-zinc-700 focus:border-sky-500 text-white placeholder:text-zinc-500"
+                  className="bg-white/5 border-white/10 focus:border-sky-500 text-white placeholder:text-zinc-500"
                 />
                 <Button
                   type="button"
                   onClick={handleLocationClick}
                   disabled={isLoadingWeather}
-                  className="bg-sky-500 hover:bg-sky-600 text-white border-0 shadow-lg shadow-sky-500/20"
+                  className="bg-sky-500 hover:bg-sky-600 text-white border-0 shadow-lg shadow-sky-500/20 min-w-[40px]"
                   size="icon"
                 >
                   {isLoadingWeather ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <PremiumLoader />
                   ) : (
                     <MapPin className="h-5 w-5" />
                   )}
