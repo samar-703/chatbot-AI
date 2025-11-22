@@ -222,58 +222,45 @@ export default function Home() {
     }
   };
 
-
   const handleVoiceTranscript = (transcript: string) => {
     sendMessage(transcript);
   };
 
-  
   const handleTextSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     sendMessage(textInput);
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-purple-500/30">
+    <div className="min-h-screen bg-black text-white selection:bg-sky-500/30">
       {/* Header */}
       <header className="border-b border-white/10 bg-black/80 backdrop-blur-lg sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <AppHeader />
-
-          {/* Weather Search */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex gap-2 mt-4"
+          
+          {/* How to Use - Horizontal Ticker Style */}
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 flex items-center gap-6 overflow-x-auto pb-2 scrollbar-hide text-sm text-zinc-400"
           >
-            <Input
-              placeholder={t.weather.placeholder}
-              value={cityInput}
-              onChange={(e) => setCityInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && fetchWeather(cityInput)}
-              className="w-64 bg-zinc-900/50 border-zinc-800 focus:border-purple-500 text-white placeholder:text-zinc-500"
-            />
-
-            <Button
-              type="button"
-              onClick={handleLocationClick}
-              disabled={isLoadingWeather}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-purple-500/20"
-              size="icon"
-            >
-              {isLoadingWeather ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <MapPin className="h-5 w-5" />
-              )}
-            </Button>
+            <div className="flex items-center gap-2 shrink-0 text-sky-400 font-medium">
+              <Sparkles className="h-4 w-4" />
+              <span>{t.howToUse.title}:</span>
+            </div>
+            {t.howToUse.items.map((item, index) => (
+              <div key={index} className="shrink-0 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                <span>{item}</span>
+              </div>
+            ))}
           </motion.div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-180px)]">
           {/* Chat Area */}
           <Card className="lg:col-span-2 flex flex-col overflow-hidden shadow-2xl border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
             <div className="flex-1 overflow-hidden">
@@ -288,12 +275,12 @@ export default function Home() {
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
                   disabled={isLoadingChat}
-                  className="flex-1 bg-zinc-900/50 border-zinc-800 focus:border-purple-500 text-white placeholder:text-zinc-500"
+                  className="flex-1 bg-zinc-900/50 border-zinc-800 focus:border-sky-500 text-white placeholder:text-zinc-500"
                 />
                 <Button 
                   type="submit" 
                   disabled={isLoadingChat || !textInput.trim()}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 border-0 text-white shadow-lg shadow-purple-500/20 transition-all duration-300 px-6"
+                  className="bg-sky-500 hover:bg-sky-600 border-0 text-white shadow-lg shadow-sky-500/20 transition-all duration-300 px-6"
                 >
                   {isLoadingChat ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -312,19 +299,34 @@ export default function Home() {
 
           {/* Sidebar */}
           <div className="flex flex-col gap-6">
-            {weather && <WeatherCard key={weather.location} weather={weather} />}
-
-            <Card className="p-6 bg-zinc-900/50 border-zinc-800 backdrop-blur-sm">
-              <h3 className="font-semibold flex items-center gap-2 text-white mb-3">
-                <Sparkles className="h-5 w-5 text-purple-500" />
-                {t.howToUse.title}
-              </h3>
-              <ul className="text-sm space-y-2 text-zinc-400">
-                {t.howToUse.items.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
+            {/* Weather Search Input */}
+            <Card className="p-4 bg-zinc-900/50 border-zinc-800 backdrop-blur-sm">
+              <div className="flex gap-2">
+                <Input
+                  placeholder={t.weather.placeholder}
+                  value={cityInput}
+                  onChange={(e) => setCityInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && fetchWeather(cityInput)}
+                  className="bg-black/40 border-zinc-700 focus:border-sky-500 text-white placeholder:text-zinc-500"
+                />
+                <Button
+                  type="button"
+                  onClick={handleLocationClick}
+                  disabled={isLoadingWeather}
+                  className="bg-sky-500 hover:bg-sky-600 text-white border-0 shadow-lg shadow-sky-500/20"
+                  size="icon"
+                >
+                  {isLoadingWeather ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <MapPin className="h-5 w-5" />
+                  )}
+                </Button>
+              </div>
             </Card>
+
+            {/* Weather Display */}
+            {weather && <WeatherCard key={weather.location} weather={weather} />}
           </div>
         </div>
       </main>
