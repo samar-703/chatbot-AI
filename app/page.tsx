@@ -159,11 +159,24 @@ export default function Home() {
       id: Date.now().toString(),
       role: 'user',
       content,
+      originalContent: content,
       timestamp: new Date(),
     };
 
+    
     setMessages((prev) => [...prev, newMessage]);
     setIsLoadingChat(true);
+
+    
+    if (language === 'ja' && !/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/.test(content)) {
+       translateMessage(newMessage, language).then(translatedMsg => {
+         setMessages(prev => prev.map(msg => msg.id === newMessage.id ? translatedMsg : msg));
+       });
+    } else if (language === 'en' && /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/.test(content)) {
+       translateMessage(newMessage, language).then(translatedMsg => {
+         setMessages(prev => prev.map(msg => msg.id === newMessage.id ? translatedMsg : msg));
+       });
+    }
 
     try {
       let contextPrompt = content;
@@ -174,7 +187,10 @@ export default function Home() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: contextPrompt }),
+        body: JSON.stringify({ 
+          message: contextPrompt,
+          language // Pass current language to backend
+        }),
       });
 
       const data = await response.json();
@@ -185,6 +201,8 @@ export default function Home() {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.message,
+        originalContent: data.message,
+        translatedContent: data.message,
         timestamp: new Date(),
       };
 

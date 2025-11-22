@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ChatRequest, ChatResponse } from '@/types';
+import { generateText } from 'ai';
+import { google } from '@ai-sdk/google';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const GOOGLE_API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY || '';
 
 export async function POST(request: NextRequest) {
   try {
     const body: ChatRequest = await request.json();
-    const { message, weatherData, conversationHistory } = body;
+    const { message, weatherData, conversationHistory, language } = body;
 
     // Validate input
     if (!message || message.trim() === '') {
@@ -18,11 +19,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if API key is configured
-    if (!GEMINI_API_KEY) {
+    if (!GOOGLE_API_KEY) {
       return NextResponse.json(
         { 
-          error: 'Gemini API key not configured',
-          message: 'Please add GEMINI_API_KEY to your .env.local file. Get your key from https://aistudio.google.com/app/apikey',
+          error: 'Google API key not configured',
+          message: 'Please add GOOGLE_GENERATIVE_AI_API_KEY to your .env.local file. Get your key from https://aistudio.google.com/app/apikey',
           mock: true,
           mockResponse: getMockResponse(message, weatherData)
         },
@@ -30,68 +31,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Build the prompt with travel theme context
-    const systemPrompt = buildTravelPrompt(weatherData);
-    const fullPrompt = `${systemPrompt}\n\nUser: ${message}\n\nAssistant:`;
+    
+    const systemPrompt = buildTravelPrompt(weatherData, language);
 
-    // ============================================
-    // GEMINI API CALL
-    // ============================================
-    // Make request to Gemini API
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: fullPrompt
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1024,
-        },
-        safetySettings: [
-          {
-            category: 'HARM_CATEGORY_HARASSMENT',
-            threshold: 'BLOCK_MEDIUM_AND_ABOVE'
-          },
-          {
-            category: 'HARM_CATEGORY_HATE_SPEECH',
-            threshold: 'BLOCK_MEDIUM_AND_ABOVE'
-          },
-          {
-            category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-            threshold: 'BLOCK_MEDIUM_AND_ABOVE'
-          },
-          {
-            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-            threshold: 'BLOCK_MEDIUM_AND_ABOVE'
-          }
-        ]
-      }),
+   
+    const { text } = await generateText({
+      model: google('gemini-2.0-flash-exp'),
+      system: systemPrompt,
+      prompt: message,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Gemini API error: ${JSON.stringify(errorData)}`);
-    }
-
-    const data = await response.json();
-    
-    // Extract the generated text from Gemini response
-    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
-
     const chatResponse: ChatResponse = {
-      message: generatedText,
+      message: text,
     };
 
     return NextResponse.json(chatResponse);
@@ -107,12 +58,13 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// ============================================
-// Helper Functions
-// ============================================
 
-function buildTravelPrompt(weatherData?: any): string {
+function buildTravelPrompt(weatherData?: any, language: string = 'en'): string {
+  const langName = language === 'ja' ? 'Japanese' : 'English';
+  
   let prompt = `You are a friendly and knowledgeable travel assistant AI. Your role is to help users plan trips, suggest destinations, recommend activities, and provide travel advice.
+
+IMPORTANT: You must ALWAYS respond in ${langName}, regardless of the language the user speaks. Even if the user speaks a different language, your response MUST be in ${langName}.
 
 Key responsibilities:
 - Suggest travel destinations based on user preferences
@@ -136,7 +88,7 @@ Use this weather information to provide relevant travel suggestions.
 `;
   }
 
-  prompt += `Always be helpful, friendly, and provide specific, actionable recommendations. Keep responses concise but informative.`;
+  prompt += `Always be helpful, friendly, and provide specific, actionable recommendations. Keep responses concise but informative. Remember to respond ONLY in ${langName}.`;
 
   return prompt;
 }

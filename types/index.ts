@@ -25,6 +25,7 @@ export interface ChatRequest {
   message: string;
   weatherData?: WeatherData;
   conversationHistory?: Message[];
+  language?: string;
 }
 
 export interface ChatResponse {

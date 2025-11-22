@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { generateText } from 'ai';
+import { google } from '@ai-sdk/google';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const GOOGLE_API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY || '';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,10 +18,10 @@ export async function POST(request: NextRequest) {
     }
 
     
-    if (!GEMINI_API_KEY) {
+    if (!GOOGLE_API_KEY) {
       return NextResponse.json(
         { 
-          error: 'Gemini API key not configured',
+          error: 'Google API key not configured',
           translatedText: text 
         },
         { status: 200 }
@@ -31,37 +32,10 @@ export async function POST(request: NextRequest) {
     const prompt = `Translate the following text to ${languageName}. Only provide the translation, no explanations or additional text:\n\n${text}`;
 
     
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.3,
-          topK: 20,
-          topP: 0.8,
-          maxOutputTokens: 2048,
-        },
-      }),
+    const { text: translatedText } = await generateText({
+      model: google('gemini-2.0-flash-exp'),
+      prompt: prompt,
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Gemini API error: ${JSON.stringify(errorData)}`);
-    }
-
-    const data = await response.json();
-    const translatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || text;
 
     return NextResponse.json({ translatedText: translatedText.trim() });
   } catch (error) {
